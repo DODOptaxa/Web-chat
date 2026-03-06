@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <title>Чат</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/chat.css">
+</head>
+<body>
+
+  <div class="bg-grid"></div>
+  <div class="bg-glow glow-1"></div>
+  <div class="bg-glow glow-2"></div>
+
+  <!-- Theme button -->
+  <button id="theme-toggle" title="Сменить тему">
+    <span id="theme-icon">☀</span>
+  </button>
+
+  <div id="app">
+
+    <!-- ══════════════════════════
+         LOGIN SCREEN
+    ══════════════════════════ -->
+    <div id="login-screen">
+
+      <div id="online-badge">
+        <span class="badge-pulse"></span>
+        <span id="online-count">Подключение...</span>
+        <span class="badge-sep"></span>
+        <span class="badge-label">сейчас в сети</span>
+      </div>
+
+      <div class="login-card">
+
+        <!-- Gradient line -->
+        <div class="card-shimmer"></div>
+
+        <div class="login-body">
+
+          <!-- Icon -->
+          <div class="login-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+          </div>
+
+          <h1 class="login-heading">Добро<br><em>пожаловать</em></h1>
+          <p class="login-sub">Войдите, чтобы присоединиться к беседе</p>
+
+          <!-- Поля -->
+          <div class="form-fields">
+
+            <div class="field-group">
+              <label class="field-label">Отображаемое имя</label>
+              <div class="field-wrap">
+                <input id="username-input" class="field-input" placeholder="Как вас называть?" maxlength="30" autocomplete="off">
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">
+                Email
+                <span class="soon-tag">скоро</span>
+              </label>
+              <div class="field-wrap disabled">
+                <input class="field-input" placeholder="your@email.com" disabled>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">
+                Пароль
+                <span class="soon-tag">скоро</span>
+              </label>
+              <div class="field-wrap disabled">
+                <input class="field-input" placeholder="••••••••" type="password" disabled>
+              </div>
+            </div>
+
+          </div>
+
+          <button id="join-btn" class="btn-join">
+            <span>Войти в чат</span>
+            <span class="btn-arrow">→</span>
+          </button>
+
+          <p class="login-footnote">
+            Нет аккаунта? <a href="#">Зарегистрироваться</a>
+          </p>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════
+         CHAT SCREEN
+    ══════════════════════════ -->
+    <div id="chat-screen" class="hidden">
+
+      <!-- ── Sidebar ── -->
+      <aside id="sidebar">
+
+        <div class="sidebar-top">
+          <div class="sidebar-logo">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            <em>Чат</em>
+          </div>
+          <div id="online-badge-chat">
+            <span class="badge-pulse"></span>
+            <span id="online-count-chat">0</span>
+            <span class="badge-label-chat">онлайн</span>
+          </div>
+        </div>
+
+        <div class="sidebar-section-title">Комнаты</div>
+        <ul id="rooms-list"></ul>
+
+        <div class="sidebar-bottom">
+          <button id="create-room-btn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Новая комната
+          </button>
+          <div class="sidebar-user" id="sidebar-user-info"></div>
+        </div>
+
+      </aside>
+
+      <!-- ── Main chat area ── -->
+      <div class="chat-main">
+
+        <header id="chat-header">
+          <div class="header-left">
+            <div class="header-status-wrap">
+              <span id="status-indicator" class="status-dot"></span>
+            </div>
+            <div class="header-room-info">
+              <span id="current-room-name" class="header-room-name">Общий</span>
+              <span id="current-user" class="header-username"></span>
+            </div>
+          </div>
+        </header>
+
+        <div id="messages"></div>
+
+        <div id="input-area">
+          <input id="message-input" placeholder="Напишите что-нибудь..." autocomplete="off">
+          <button id="send-btn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13"/>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ── Create room modal ── -->
+    <div id="room-modal" class="modal hidden">
+      <div class="modal-overlay"></div>
+      <div class="modal-card">
+        <div class="modal-shimmer"></div>
+        <h3 class="modal-title">Создать комнату</h3>
+        <p class="modal-sub">Введите название и выберите эмодзи</p>
+        <div class="modal-fields">
+          <div class="field-group">
+            <label class="field-label">Название</label>
+            <div class="field-wrap">
+              <input id="room-name-input" class="field-input" placeholder="Например: дизайн" maxlength="30" autocomplete="off">
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Эмодзи</label>
+            <div class="field-wrap">
+              <input id="room-icon-input" class="field-input" placeholder="💬" maxlength="4" autocomplete="off">
+            </div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button id="modal-cancel" class="btn-modal-cancel">Отмена</button>
+          <button id="modal-confirm" class="btn-modal-confirm">
+            <span>Создать</span>
+            <span class="btn-arrow">→</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+  <script src="js/chat.js"></script>
+  <!-- <script src="js/banners.js"></script> -->
+</body>
+</html>
