@@ -1,19 +1,25 @@
 ﻿using SuperDuperDODO_Chat.Models;
 using SuperDuperDODO_Chat.Services;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SuperDuperDODO_Chat.Hubs
 {
+    [Authorize]
     public class ChatHub: Hub
     {
+
         private readonly IRoomService _roomService;
         private readonly IChatService _chatService;
+
+        private string userName => Context.User?.Identity?.Name ?? "Аноним";
+
         public ChatHub(IChatService chatService, IRoomService roomService) {
             _chatService = chatService;
             _roomService = roomService;
         }
 
-        public async Task SendMessage(string roomId, string userName, string text)
+        public async Task SendMessage(string roomId, string text)
         {
             var msg = new Message
             {
@@ -34,7 +40,7 @@ namespace SuperDuperDODO_Chat.Hubs
             await base.OnConnectedAsync();
         }
 
-        public async Task Register(string userName)
+        public async Task Register()
         {
             Context.Items["UserName"] = userName;
             await Clients.Others.SendAsync("SystemMessage", $"{userName} вошёл в чат 👋");
@@ -55,14 +61,14 @@ namespace SuperDuperDODO_Chat.Hubs
             Context.Abort();
         }
 
-        public async Task StartTyping(string userName)
+        public async Task StartTyping(string userName, string roomId)
         {
-            await Clients.Others.SendAsync("UserTyping", userName);
+            await Clients.GroupExcept(roomId, Context.ConnectionId).SendAsync("UserTyping", userName);
         }
 
-        public async Task StopTyping(string userName)
+        public async Task StopTyping(string userName, string roomId)
         {
-            await Clients.Others.SendAsync("UserStoppedTyping", userName);
+            await Clients.GroupExcept(roomId, Context.ConnectionId).SendAsync("UserStoppedTyping", userName);
         }
 
         public IEnumerable<object> GetRooms() =>
@@ -70,7 +76,6 @@ namespace SuperDuperDODO_Chat.Hubs
            r.Id,
            r.Name,
            r.Icon,
-           MemberCount = r.Members.Count
        });
 
         public async Task JoinRoom(string roomId)
@@ -79,7 +84,6 @@ namespace SuperDuperDODO_Chat.Hubs
             if (room == null) return;
 
             await Groups.AddToGroupAsync(Context.ConnectionId, roomId);
-            room.Members.Add(Context.ConnectionId);
 
             await Clients.Caller.SendAsync("LoadHistory", room.Messages.Select(m => m.ToDto()));
         }
@@ -87,8 +91,6 @@ namespace SuperDuperDODO_Chat.Hubs
         public async Task LeaveRoom(string roomId)
         {
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, roomId);
-            var room = _roomService.GetRoom(roomId);
-            room?.Members.Remove(Context.ConnectionId);
         }
 
         public async Task CreateRoom(string name, string icon = "#")

@@ -272,10 +272,10 @@ document.getElementById('username-input').addEventListener('keydown', e => {
 });
 
 document.getElementById('message-input').addEventListener('input', () => {
-    try { connection.invoke('StartTyping', currentUser); } catch (_) { }
+    try { connection.invoke('StartTyping', currentUser, currentRoom); } catch (_) { }
     clearTimeout(typingTimer);
     typingTimer = setTimeout(() => {
-        try { connection.invoke('StopTyping', currentUser); } catch (_) { }
+        try { connection.invoke('StopTyping', currentUser, currentRoom); } catch (_) { }
     }, TYPING_DELAY);
 });
 

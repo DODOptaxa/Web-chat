@@ -6,6 +6,5 @@
         public string Name { get; set; } = "";
         public string Icon { get; set; } = "#";
         public List<Message> Messages { get; } = [];
-        public List<string> Members { get; } = [];
     }
 }
