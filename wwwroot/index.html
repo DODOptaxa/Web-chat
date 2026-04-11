@@ -1,11 +1,15 @@
 <!DOCTYPE html>
-<html lang="ru" data-theme="dark">
+<html lang="ru" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <title>Чат</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Onest:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/chat.css">
+  <script>
+      const theme = localStorage.getItem("chat-theme") || "light";
+      document.documentElement.setAttribute("data-theme", theme);
+  </script>
 </head>
 <body>
 
@@ -23,7 +27,7 @@
     <!-- ══════════════════════════
          LOGIN SCREEN
     ══════════════════════════ -->
-    <div id="login-screen">
+    <div id="login-screen" class="hidden">
 
       <div id="online-badge">
         <span class="badge-pulse"></span>
@@ -37,6 +41,11 @@
         <!-- Gradient line -->
         <div class="card-shimmer"></div>
 
+        <!-- Decorative GIF (placed in login card). Ensure file is at /wwwroot/assets/ddd.gif -->
+        <div class="login-art" aria-hidden="true">
+          <img src="/assets/ddd.gif" alt="" />
+        </div>
+
         <div class="login-body">
 
           <!-- Icon -->
@@ -46,49 +55,72 @@
             </svg>
           </div>
 
-          <h1 class="login-heading">Добро<br><em>пожаловать</em></h1>
-          <p class="login-sub">Войдите, чтобы присоединиться к беседе</p>
+          <h1 class="login-heading">Добро <em>пожаловать</em></h1>
+          <p class="login-sub">Войдите или создайте аккаунт</p>
 
-          <!-- Поля -->
-          <div class="form-fields">
+          <!-- Tabs -->
+          <div class="auth-tabs">
+            <button class="auth-tab active" data-tab="login">Войти</button>
+            <button class="auth-tab" data-tab="register">Регистрация</button>
+          </div>
 
+          <!-- Error -->
+          <div id="auth-error" class="auth-error hidden">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span id="auth-error-text"></span>
+          </div>
+
+          <!-- LOGIN -->
+          <div id="tab-login" class="form-fields tab-panel">
+            <div class="field-group">
+              <label class="field-label">Email</label>
+              <div class="field-wrap">
+                <input id="email-input" class="field-input" type="email" placeholder="your@email.com" autocomplete="email">
+              </div>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Пароль</label>
+              <div class="field-wrap">
+                <input id="password-input" class="field-input" type="password" placeholder="••••••••" autocomplete="current-password">
+                <button type="button" class="field-eye" id="toggle-password-login" tabindex="-1">
+                  <svg class="eye-open" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <svg class="eye-closed" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                </button>
+              </div>
+            </div>
+            <button id="login-btn" class="btn-join login-btn">
+              <span>Войти</span><span class="btn-arrow">→</span>
+            </button>
+          </div>
+
+          <!-- REGISTER -->
+          <div id="tab-register" class="form-fields tab-panel hidden">
             <div class="field-group">
               <label class="field-label">Отображаемое имя</label>
               <div class="field-wrap">
                 <input id="username-input" class="field-input" placeholder="Как вас называть?" maxlength="30" autocomplete="off">
               </div>
             </div>
-
             <div class="field-group">
-              <label class="field-label">
-                Email
-                <span class="soon-tag">скоро</span>
-              </label>
-              <div class="field-wrap disabled">
-                <input class="field-input" placeholder="your@email.com" disabled>
+              <label class="field-label">Email</label>
+              <div class="field-wrap">
+                <input id="email-input-reg" class="field-input" type="email" placeholder="your@email.com" autocomplete="email">
               </div>
             </div>
-
             <div class="field-group">
-              <label class="field-label">
-                Пароль
-                <span class="soon-tag">скоро</span>
-              </label>
-              <div class="field-wrap disabled">
-                <input class="field-input" placeholder="••••••••" type="password" disabled>
+              <label class="field-label">Пароль</label>
+              <div class="field-wrap">
+                <input id="password-input-reg" class="field-input" type="password" placeholder="••••••••" autocomplete="new-password">
+                <button type="button" class="field-eye" id="toggle-password-reg" tabindex="-1">
+                  <svg class="eye-open" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <svg class="eye-closed" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                </button>
               </div>
             </div>
-
+            <button id="register-btn" class="btn-join register-btn">
+              <span>Создать аккаунт</span><span class="btn-arrow">→</span>
+            </button>
           </div>
-
-          <button id="join-btn" class="btn-join">
-            <span>Войти в чат</span>
-            <span class="btn-arrow">→</span>
-          </button>
-
-          <p class="login-footnote">
-            Нет аккаунта? <a href="#">Зарегистрироваться</a>
-          </p>
 
         </div>
       </div>
@@ -99,6 +131,7 @@
     ══════════════════════════ -->
     <div id="chat-screen" class="hidden">
 
+      <div id="sidebar-backdrop"></div>
       <!-- ── Sidebar ── -->
       <aside id="sidebar">
 
@@ -136,6 +169,13 @@
 
         <header id="chat-header">
           <div class="header-left">
+            <button id="sidebar-toggle" aria-label="Меню">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square">
+                <line x1="3" y1="6" x2="21" y2="6"/>
+                <line x1="3" y1="12" x2="21" y2="12"/>
+                <line x1="3" y1="18" x2="21" y2="18"/>
+              </svg>
+            </button>
             <div class="header-status-wrap">
               <span id="status-indicator" class="status-dot"></span>
             </div>
@@ -195,8 +235,8 @@
 
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
-  <script src="js/chat.js"></script>
-  <!-- <script src="js/banners.js"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    <script type="module" src="js/chat.js"></script>
+    <!-- <script src="js/banners.js"></script> -->
 </body>
 </html>

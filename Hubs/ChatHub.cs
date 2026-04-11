@@ -42,31 +42,28 @@ namespace SuperDuperDODO_Chat.Hubs
 
         public async Task Register()
         {
-            Context.Items["UserName"] = userName;
             await Clients.Others.SendAsync("SystemMessage", $"{userName} вошёл в чат 👋");
         }
 
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
-            var userName = Context.Items["UserName"]?.ToString();
             await Clients.Others.SendAsync("SystemMessage", $"{userName} отключился 💫");
             await base.OnDisconnectedAsync(exception);
         }
 
         public async Task AbortBlyat()
         {
-            var userName = Context.Items["UserName"]?.ToString();
             await Clients.Others.SendAsync("SystemMessage", $"{userName} совершил аборт 💥");
             Console.WriteLine(Context.ConnectionId);
             Context.Abort();
         }
 
-        public async Task StartTyping(string userName, string roomId)
+        public async Task StartTyping(string roomId)
         {
             await Clients.GroupExcept(roomId, Context.ConnectionId).SendAsync("UserTyping", userName);
         }
 
-        public async Task StopTyping(string userName, string roomId)
+        public async Task StopTyping(string roomId)
         {
             await Clients.GroupExcept(roomId, Context.ConnectionId).SendAsync("UserStoppedTyping", userName);
         }
