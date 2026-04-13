@@ -62,7 +62,12 @@ namespace SuperDuperDODO_Chat.Services
             var existing = db.MessageReactions
                 .FirstOrDefault(r => r.MessageId == messageId && r.UserName == userName && r.Emoji == emoji);
 
-            if (existing != null)
+            if (existing != null && existing.Emoji != emoji)
+            {
+                db.MessageReactions.Remove(existing);
+                db.MessageReactions.Add(new MessageReaction { MessageId = messageId, UserName = userName, Emoji = emoji });
+            }
+            else if (existing != null)
                 db.MessageReactions.Remove(existing);
             else
                 db.MessageReactions.Add(new MessageReaction { MessageId = messageId, UserName = userName, Emoji = emoji });

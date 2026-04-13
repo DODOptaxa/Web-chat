@@ -24,18 +24,7 @@ export default function EmojiModal({ msgId, onClose }: Props) {
     if (msgId == null) return
     onClose()
 
-    // Find the current user's existing reaction on this message
-    const msg = state.messages.find(m => m.id === msgId)
-    const existing = msg?.reactions.find(r => r.userName === state.user?.userName)
-
-    if (existing && existing.emoji !== emoji) {
-      // Different emoji selected — remove old reaction first, then add new
-      await toggleReaction(msgId, existing.emoji)
-      await toggleReaction(msgId, emoji)
-    } else {
-      // Same emoji (toggle off) or no prior reaction (add)
-      await toggleReaction(msgId, emoji)
-    }
+    await toggleReaction(msgId, emoji)
   }
 
   if (msgId == null) return null
