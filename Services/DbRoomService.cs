@@ -16,7 +16,13 @@ namespace SuperDuperDODO_Chat.Services
         {
             using var scope = _scopeFactory.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<ChatDbContext>();
-            return db.Rooms.Include(r => r.Messages).FirstOrDefault(r => r.Id == roomId);
+            return db.Rooms
+                .Include(r => r.Messages)
+                    .ThenInclude(m => m.Reactions)
+                .Include(r => r.Messages)
+                    .ThenInclude(m => m.ReplyTo)
+                .AsSplitQuery()
+                .FirstOrDefault(r => r.Id == roomId);
         }
 
         public Room CreateRoom(string id, string name, string icon = "#")

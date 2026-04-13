@@ -1,4 +1,4 @@
-﻿using SuperDuperDODO_Chat.Models;
+using SuperDuperDODO_Chat.Models;
 using SuperDuperDODO_Chat.Services;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Authorization;
@@ -6,31 +6,40 @@ using Microsoft.AspNetCore.Authorization;
 namespace SuperDuperDODO_Chat.Hubs
 {
     [Authorize]
-    public class ChatHub: Hub
+    public class ChatHub : Hub
     {
-
         private readonly IRoomService _roomService;
         private readonly IChatService _chatService;
 
         private string userName => Context.User?.Identity?.Name ?? "Аноним";
 
-        public ChatHub(IChatService chatService, IRoomService roomService) {
+        public ChatHub(IChatService chatService, IRoomService roomService)
+        {
             _chatService = chatService;
             _roomService = roomService;
         }
 
-        public async Task SendMessage(string roomId, string text)
+        public async Task SendMessage(string roomId, string text, int? replyToId = null)
         {
             var msg = new Message
             {
                 RoomId = roomId,
                 UserName = userName,
                 Text = text,
+                ReplyToId = replyToId,
             };
             var message = _chatService.AddMessage(msg);
 
             await Clients.Others.SendAsync("UserStoppedTyping", userName);
             await Clients.Group(roomId).SendAsync("ReceiveMessage", message.ToDto(), roomId);
+        }
+
+        public async Task ToggleReaction(int messageId, string emoji)
+        {
+            Console.WriteLine($"ToggleReaction: {messageId}, {emoji} by {userName}");
+            var (reactions, roomId) = _chatService.ToggleReaction(messageId, userName, emoji);
+            if (roomId != null)
+                await Clients.Group(roomId).SendAsync("ReactionUpdated", messageId, reactions);
         }
 
         public override async Task OnConnectedAsync()
@@ -69,11 +78,11 @@ namespace SuperDuperDODO_Chat.Hubs
         }
 
         public IEnumerable<object> GetRooms() =>
-       _roomService.GetAllRooms().Select(r => new {
-           r.Id,
-           r.Name,
-           r.Icon,
-       });
+            _roomService.GetAllRooms().Select(r => new {
+                r.Id,
+                r.Name,
+                r.Icon,
+            });
 
         public async Task JoinRoom(string roomId)
         {

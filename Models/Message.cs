@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace SuperDuperDODO_Chat.Models
 {
@@ -10,10 +10,17 @@ namespace SuperDuperDODO_Chat.Models
 
         [JsonIgnore]
         public Room Room { get; set; } = null!;
+
         public string UserName { get; set; } = "";
         public string Text { get; set; } = "";
         public DateTime SentAt { get; set; } = DateTime.UtcNow;
 
+        public int? ReplyToId { get; set; }
+
+        [JsonIgnore]
+        public Message? ReplyTo { get; set; }
+
+        public List<MessageReaction> Reactions { get; } = [];
     }
 
     public static class MessageExtensions
@@ -26,7 +33,19 @@ namespace SuperDuperDODO_Chat.Models
                 RoomId = message.RoomId,
                 UserName = message.UserName,
                 Text = message.Text,
-                SentAt = message.SentAt
+                SentAt = message.SentAt,
+                ReplyToId = message.ReplyToId,
+                ReplyToUserName = message.ReplyTo?.UserName,
+                ReplyToText = message.ReplyTo?.Text,
+                Reactions = message.Reactions
+                    .GroupBy(r => r.Emoji)
+                    .Select(g => new ReactionDto
+                    {
+                        Emoji = g.Key,
+                        Count = g.Count(),
+                        Users = g.Select(r => r.UserName).ToList()
+                    })
+                    .ToList()
             };
         }
     }

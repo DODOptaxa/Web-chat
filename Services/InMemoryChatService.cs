@@ -1,4 +1,4 @@
-﻿using SuperDuperDODO_Chat.Models;
+using SuperDuperDODO_Chat.Models;
 namespace SuperDuperDODO_Chat.Services
 {
     public class InMemoryChatService : IChatService
@@ -41,5 +41,8 @@ namespace SuperDuperDODO_Chat.Services
                 return _messages.TakeLast(count).ToList();
             }
         }
+
+        public (List<ReactionDto> Reactions, string? RoomId) ToggleReaction(int messageId, string userName, string emoji)
+            => ([], null);
     }
 }

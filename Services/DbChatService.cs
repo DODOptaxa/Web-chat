@@ -1,10 +1,10 @@
-﻿using SuperDuperDODO_Chat.Models;
-using System;
+using SuperDuperDODO_Chat.Models;
 using SuperDuperDODO_Chat.EFcore;
+using Microsoft.EntityFrameworkCore;
 
 namespace SuperDuperDODO_Chat.Services
 {
-    public class DbChatService: IChatService
+    public class DbChatService : IChatService
     {
         private readonly IServiceScopeFactory _scopeFactory;
 
@@ -22,12 +22,18 @@ namespace SuperDuperDODO_Chat.Services
 
             return message;
         }
+
         public Message AddMessage(Message message)
         {
             using var scope = _scopeFactory.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<ChatDbContext>();
             db.Messages.Add(message);
             db.SaveChanges();
+
+            // Eagerly load ReplyTo so ToDto() can populate reply fields
+            if (message.ReplyToId.HasValue)
+                db.Entry(message).Reference(m => m.ReplyTo).Load();
+
             return message;
         }
 
@@ -38,10 +44,48 @@ namespace SuperDuperDODO_Chat.Services
 
             return db.Messages
                 .Where(m => m.RoomId == roomId)
+                .Include(m => m.ReplyTo)
+                .Include(m => m.Reactions)
+                .AsSplitQuery()
                 .OrderByDescending(m => m.SentAt)
                 .Take(count)
-                .OrderBy(m => m.SentAt)  
+                .OrderBy(m => m.SentAt)
                 .ToList();
+        }
+
+        public (List<ReactionDto> Reactions, string? RoomId) ToggleReaction(int messageId, string userName, string emoji)
+        {
+            Console.WriteLine($"Toggling reaction: MessageId={messageId}, UserName={userName}, Emoji={emoji}");
+            using var scope = _scopeFactory.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<ChatDbContext>();
+
+            var existing = db.MessageReactions
+                .FirstOrDefault(r => r.MessageId == messageId && r.UserName == userName && r.Emoji == emoji);
+
+            if (existing != null)
+                db.MessageReactions.Remove(existing);
+            else
+                db.MessageReactions.Add(new MessageReaction { MessageId = messageId, UserName = userName, Emoji = emoji });
+
+            db.SaveChanges();
+
+            var reactions = db.MessageReactions
+                .Where(r => r.MessageId == messageId)
+                .GroupBy(r => r.Emoji)
+                .Select(g => new ReactionDto
+                {
+                    Emoji = g.Key,
+                    Count = g.Count(),
+                    Users = g.Select(r => r.UserName).ToList()
+                })
+                .ToList();
+
+            var roomId = db.Messages
+                .Where(m => m.Id == messageId)
+                .Select(m => m.RoomId)
+                .FirstOrDefault();
+
+            return (reactions, roomId);
         }
     }
 }
