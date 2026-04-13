@@ -157,6 +157,12 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 
   // ── Enter chat ────────────────────────────────────────────────────────────
   const enterChat = useCallback(async (user: AuthUser) => {
+    // Stop any existing connection (e.g. StrictMode double-invoke)
+    if (chatConnRef.current) {
+      await chatConnRef.current.stop()
+      chatConnRef.current = null
+    }
+
     dispatch({ type: 'SET_USER', payload: user })
 
     const conn = new signalR.HubConnectionBuilder()

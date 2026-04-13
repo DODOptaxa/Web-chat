@@ -474,7 +474,7 @@ body {
   scrollbar-width: thin; scrollbar-color: var(--border-hi) transparent;
 }
 .message {
-  max-width: 72%; padding: 6px 10px;
+  max-width: min(72%, 600px); padding: 6px 10px;
   background: var(--surface2); border: 2px solid var(--border);
   align-self: flex-start;
   animation: msgIn 0.12s ease both;
@@ -579,6 +579,13 @@ body {
 .btn-modal-confirm:hover .btn-arrow { transform: translateX(3px); }
 
 /* ═══════════════════════════════════════════
+   MEDIUM SCREENS (640–860px)
+═══════════════════════════════════════════ */
+@media (max-width: 860px) {
+  .message { max-width: 60%; }
+}
+
+/* ═══════════════════════════════════════════
    MOBILE — sidebar overlay + layout
 ═══════════════════════════════════════════ */
 @media (max-width: 640px) {
@@ -596,6 +603,8 @@ body {
     position: fixed; top: 0; left: 0; bottom: 0;
     width: 260px;
     transform: translateX(-100%);
+    transition: transform 0.26s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.26s ease;
     box-shadow: none;
     z-index: 100;
   }
@@ -618,8 +627,7 @@ body {
   /* chat takes full width */
   #chat-screen { border-left: none; border-right: none; }
 
-  /* messages wider on mobile */
-  .message { max-width: 92%; }
+  .message { max-width: 75%; }
 
   /* bigger tap targets */
   .room-item  { padding: 11px 10px; }

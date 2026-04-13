@@ -8,7 +8,7 @@ interface Props {
 }
 
 export default function EmojiModal({ msgId, onClose }: Props) {
-  const { toggleReaction } = useChatContext()
+  const { toggleReaction, state } = useChatContext()
   const categories = Object.keys(EMOJI_DATA)
   const [activeCategory, setActiveCategory] = useState(categories[0])
 
@@ -23,7 +23,19 @@ export default function EmojiModal({ msgId, onClose }: Props) {
   async function handleEmoji(emoji: string) {
     if (msgId == null) return
     onClose()
-    await toggleReaction(msgId, emoji)
+
+    // Find the current user's existing reaction on this message
+    const msg = state.messages.find(m => m.id === msgId)
+    const existing = msg?.reactions.find(r => r.userName === state.user?.userName)
+
+    if (existing && existing.emoji !== emoji) {
+      // Different emoji selected — remove old reaction first, then add new
+      await toggleReaction(msgId, existing.emoji)
+      await toggleReaction(msgId, emoji)
+    } else {
+      // Same emoji (toggle off) or no prior reaction (add)
+      await toggleReaction(msgId, emoji)
+    }
   }
 
   if (msgId == null) return null

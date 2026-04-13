@@ -373,7 +373,4 @@ wwwroot/assets/app.css
 # Vite dev cache
 ClientApp/.vite/
 
-# appsettings with secrets (keep appsettings.json in git, ignore overrides with real data)
-appsettings.Development.json
-
 DOCS.md

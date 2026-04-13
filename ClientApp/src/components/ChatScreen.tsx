@@ -21,7 +21,7 @@ export default function ChatScreen() {
 
   const allMessages = [
     ...messages,
-    ...typingUsers.map(name => ({
+    ...typingUsers.filter(name => name !== user?.userName).map(name => ({
       id: -(name.length + Date.now()),
       userName: name,
       text: `${name} печатает...`,
@@ -51,6 +51,7 @@ export default function ChatScreen() {
           <Sidebar
             rooms={rooms}
             currentRoomId={currentRoomId}
+            isOpen={sidebarOpen}
             onRoomClick={(id, name) => switchRoom(id, name)}
             onCreateRoom={() => setShowRoomModal(true)}
             onClose={() => setSidebarOpen(false)}

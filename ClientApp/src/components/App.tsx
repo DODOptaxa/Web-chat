@@ -19,6 +19,7 @@ function AppInner() {
     } else {
       setReady(true)
     }
+    // No cleanup needed — enterChat() stops the previous connection itself
   }, [])
 
   if (!ready) return null

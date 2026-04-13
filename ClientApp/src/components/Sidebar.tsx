@@ -10,17 +10,18 @@ function nameToColor(name: string) {
 interface Props {
   rooms: Room[]
   currentRoomId: string
+  isOpen: boolean
   onRoomClick: (id: string, name: string) => void
   onCreateRoom: () => void
   onClose: () => void
 }
 
-export default function Sidebar({ rooms, currentRoomId, onRoomClick, onCreateRoom, onClose }: Props) {
+export default function Sidebar({ rooms, currentRoomId, isOpen, onRoomClick, onCreateRoom, onClose }: Props) {
   const { state, logout } = useChatContext()
   const user = state.user
 
   return (
-    <aside id="sidebar">
+    <aside id="sidebar" className={isOpen ? 'open' : ''}>
       <div className="sidebar-top">
         <div className="sidebar-logo">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
