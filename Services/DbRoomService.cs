@@ -36,6 +36,7 @@ namespace SuperDuperDODO_Chat.Services
         }
 
         public void DeleteRoom(string roomId) {
+            if (roomId == "general") return; 
             using var scope = _scopeFactory.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<ChatDbContext>();
             var room = db.Rooms.FirstOrDefault(r => r.Id == roomId);
@@ -55,7 +56,7 @@ namespace SuperDuperDODO_Chat.Services
                 db.Rooms.Add(general);
                 db.SaveChanges();
             }
-            return db.Rooms.ToList();
+            return db.Rooms.OrderBy(r => r.CreatedAt).ToList(); 
         }
     }
 }

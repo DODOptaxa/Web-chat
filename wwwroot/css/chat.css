@@ -869,3 +869,54 @@ body {
 }
 .emoji-grid-btn:hover { background: var(--accent-dim); transform: scale(1.2); }
 
+.room-delete-btn {
+  display: none;
+  margin-left: auto;
+  background: none;
+  border: none;
+  cursor: pointer;
+  opacity: 0.4;
+  padding: 2px 4px;
+  border-radius: 4px;
+  color: currentColor;
+  flex-shrink: 0;
+}
+.room-item:hover .room-delete-btn {
+  display: flex;
+  align-items: center;
+}
+.room-delete-btn:hover {
+  opacity: 1;
+  background: rgba(220, 38, 38, 0.15);
+}
+
+.rainbow-char {
+  display: inline-block;
+  background: linear-gradient(
+    90deg,
+    hsl(0,100%,55%),
+    hsl(30,100%,55%),
+    hsl(60,100%,50%),
+    hsl(120,100%,45%),
+    hsl(200,100%,55%),
+    hsl(270,100%,60%),
+    hsl(360,100%,55%)
+  );
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation:
+    rainbow-flow 2s linear infinite,
+    wave 1.4s ease-in-out infinite;
+  will-change: background-position, transform;
+}
+
+@keyframes rainbow-flow {
+  to { background-position: 300% center; }
+}
+
+@keyframes wave {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-5px); }
+}

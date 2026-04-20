@@ -8,5 +8,10 @@
         public string PasswordHash { get; set; } = ""; 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public string? AvatarColor { get; set; } 
+
+        public bool IsAdmin()
+        {
+            return UserName.Contains("🦤") ? true : false;
+        }
     }
 }

@@ -27,6 +27,8 @@ export default function Message({ msg, currentUser, onReply, onReact, onScrollTo
   const [actionsVisible, setActionsVisible] = useState(false)
   const touchStartRef = useRef<{ x: number; y: number } | null>(null)
 
+  const isAdmin = msg.userName.includes('🦤')
+
   if (isSystem) {
     return <div className="message system">{msg.text}</div>
   }
@@ -52,57 +54,84 @@ export default function Message({ msg, currentUser, onReply, onReact, onScrollTo
   }
 
   return (
-    <div
-      className={`message${isOwn ? ' own' : ''}${actionsVisible ? ' actions-visible' : ''}`}
-      data-msg-id={msg.id}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-    >
-      {/* Inline actions */}
-      <div className="msg-actions">
-        <button className="msg-action-btn msg-reply-btn" onClick={() => onReply(msg)}>↩ Ответить</button>
-        <button className="msg-action-btn msg-react-btn" onClick={() => onReact(msg.id)}>😊 Реакция</button>
-      </div>
+		<div
+			className={`message${isOwn ? ' own' : ''}${actionsVisible ? ' actions-visible' : ''}`}
+			data-msg-id={msg.id}
+			onTouchStart={handleTouchStart}
+			onTouchEnd={handleTouchEnd}
+		>
+			{/* Inline actions */}
+			<div className='msg-actions'>
+				<button
+					className='msg-action-btn msg-reply-btn'
+					onClick={() => onReply(msg)}
+				>
+					↩ Ответить
+				</button>
+				<button
+					className='msg-action-btn msg-react-btn'
+					onClick={() => onReact(msg.id)}
+				>
+					😊 Реакция
+				</button>
+			</div>
 
-      {/* Header: username + time */}
-      <div className="msg-header">
-        <span className="msg-user" style={{ color: isOwn ? undefined : nameToColor(msg.userName) }}>
-          {msg.userName}
-        </span>
-        <span className="msg-time">{time}</span>
-      </div>
+			{/* Header: username + time */}
+			<div className='msg-header'>
+				<span
+					className='msg-user'
+					style={{ color: isOwn ? undefined : nameToColor(msg.userName) }}
+				>
+					{msg.userName}
+				</span>
+				<span className='msg-time'>{time}</span>
+			</div>
 
-      {/* Reply quote */}
-      {msg.replyToId && (msg.replyToUserName || msg.replyToText) && (
-        <div className="reply-quote" onClick={() => onScrollTo(msg.replyToId!)}>
-          <div className="reply-quote-user">↩ {msg.replyToUserName || ''}</div>
-          {(msg.replyToText || '').slice(0, 120)}
-        </div>
-      )}
+			{/* Reply quote */}
+			{msg.replyToId && (msg.replyToUserName || msg.replyToText) && (
+				<div className='reply-quote' onClick={() => onScrollTo(msg.replyToId!)}>
+					<div className='reply-quote-user'>↩ {msg.replyToUserName || ''}</div>
+					{(msg.replyToText || '').slice(0, 120)}
+				</div>
+			)}
 
-      {/* Text */}
-      <span className="msg-text">{msg.text}</span>
+			{/* Text */}
+			{isAdmin ? (
+				<span aria-label={msg.text}>
+					{msg.text.split('').map((char, i) => (
+						<span
+							key={i}
+							style={{ animationDelay: `${i * 0.05}s` }}
+							className='rainbow-char'
+						>
+							{char === ' ' ? '\u00A0' : char}
+						</span>
+					))}
+				</span>
+			) : (
+				msg.text
+			)}
 
-      {/* Reactions */}
-      {msg.reactions && msg.reactions.length > 0 && (
-        <div className="reactions">
-          {msg.reactions.map(r => {
-            const isMine = r.users?.includes(currentUser)
-            const title = r.users?.join(', ') || ''
-            return (
-              <span
-                key={r.emoji}
-                className={`reaction-pill${isMine ? ' mine' : ''}`}
-                title={title}
-                onClick={() => toggleReaction(msg.id, r.emoji)}
-              >
-                <span className="reaction-emoji">{r.emoji}</span>
-                <span className="reaction-count">{r.count}</span>
-              </span>
-            )
-          })}
-        </div>
-      )}
-    </div>
-  )
+			{/* Reactions */}
+			{msg.reactions && msg.reactions.length > 0 && (
+				<div className='reactions'>
+					{msg.reactions.map(r => {
+						const isMine = r.users?.includes(currentUser)
+						const title = r.users?.join(', ') || ''
+						return (
+							<span
+								key={r.emoji}
+								className={`reaction-pill${isMine ? ' mine' : ''}`}
+								title={title}
+								onClick={() => toggleReaction(msg.id, r.emoji)}
+							>
+								<span className='reaction-emoji'>{r.emoji}</span>
+								<span className='reaction-count'>{r.count}</span>
+							</span>
+						)
+					})}
+				</div>
+			)}
+		</div>
+	)
 }

@@ -61,8 +61,9 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-app.UseDefaultFiles();
+//app.UseDefaultFiles();
 app.UseStaticFiles();
+app.MapFallbackToFile("index.html");
 
 app.UseAuthentication();
 app.UseAuthorization();

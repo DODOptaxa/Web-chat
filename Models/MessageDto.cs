@@ -11,6 +11,7 @@ namespace SuperDuperDODO_Chat.Models
         public string? ReplyToUserName { get; set; }
         public string? ReplyToText { get; set; }
         public List<ReactionDto> Reactions { get; set; } = [];
+
     }
 
     public class ReactionDto

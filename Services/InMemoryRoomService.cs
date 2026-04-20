@@ -25,6 +25,8 @@ namespace SuperDuperDODO_Chat.Services
             return room;
         }
 
+        public void DeleteRoom(string roomId) { _rooms.TryRemove(roomId, out _); }
+
         public IEnumerable<Room> GetAllRooms() => _rooms.Values;
     }
 }

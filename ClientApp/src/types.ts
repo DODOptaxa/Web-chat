@@ -24,6 +24,7 @@ export interface Room {
 }
 
 export interface AuthUser {
-  userName: string
-  token: string
+	userName: string
+	token: string
+	role: string
 }

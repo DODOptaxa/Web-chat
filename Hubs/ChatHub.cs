@@ -78,7 +78,8 @@ namespace SuperDuperDODO_Chat.Hubs
         }
 
         public IEnumerable<object> GetRooms() =>
-            _roomService.GetAllRooms().Select(r => new {
+            _roomService.GetAllRooms().Select(r => new
+            {
                 r.Id,
                 r.Name,
                 r.Icon,
@@ -104,6 +105,12 @@ namespace SuperDuperDODO_Chat.Hubs
             var roomId = Guid.NewGuid().ToString();
             var room = _roomService.CreateRoom(roomId, name, icon);
             await Clients.All.SendAsync("RoomCreated", new { room.Id, room.Name, room.Icon });
+        }
+
+        public async Task DeleteRoom(string roomId)
+        {
+            _roomService.DeleteRoom(roomId);
+            await Clients.All.SendAsync("RoomDeleted", roomId);
         }
     }
 }

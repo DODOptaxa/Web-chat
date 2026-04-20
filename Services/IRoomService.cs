@@ -9,5 +9,7 @@ namespace SuperDuperDODO_Chat.Services
         public Room CreateRoom(string id, string name,string icon = "#");
 
         public IEnumerable<Room> GetAllRooms();
+
+        public void DeleteRoom(string roomId);
     }
 }

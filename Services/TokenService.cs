@@ -19,6 +19,7 @@ namespace SuperDuperDODO_Chat.Services
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name,             user.UserName),
                 new Claim(ClaimTypes.Email,            user.Email),
+                new Claim(ClaimTypes.Role, user.IsAdmin() ? "Admin" : "User")
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
