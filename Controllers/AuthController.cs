@@ -14,12 +14,16 @@ namespace SuperDuperDODO_Chat.Controllers
         private readonly TokenService _tokenService;
         private readonly ChatDbContext _db;
         private readonly IPasswordHasher<User> _passwordHasher;
+        private readonly IEmailService _emailService;
+        private readonly VerificationCodeStore _codeStore;
 
-        public AuthController(TokenService tokenService, ChatDbContext db, IPasswordHasher<User> passwordHasher)
+        public AuthController(TokenService tokenService, ChatDbContext db, IPasswordHasher<User> passwordHasher, IEmailService emailService, VerificationCodeStore codeStore)
         {
             _tokenService = tokenService;
             _db = db;
             _passwordHasher = passwordHasher;
+            _emailService = emailService;
+            _codeStore = codeStore;
         }
 
         [HttpPost("register")]
@@ -31,13 +35,19 @@ namespace SuperDuperDODO_Chat.Controllers
             if (_db.Users.Any(u => u.Email == dto.Email))
                 return BadRequest(new { error = "Email уже используется" });
 
+
+            var isValid = _codeStore.Verify(dto.Email, dto.Code);
+
+            if (!isValid)
+                return BadRequest(new { message = "Неверный или истёкший код" });
+
             var user = new User { UserName = dto.UserName, Email = dto.Email };
             user.PasswordHash = _passwordHasher.HashPassword(user, dto.Password);
 
             _db.Users.Add(user);
             await _db.SaveChangesAsync();
 
-            return Ok(new { token = _tokenService.GenerateToken(user), user.UserName });
+            return Ok(new { token = _tokenService.GenerateToken(user), user.UserName, message = "Регистрация успешна! Код подтверждения отправлен на почту" });
         }
 
         [HttpPost("login")]
@@ -52,8 +62,38 @@ namespace SuperDuperDODO_Chat.Controllers
 
             return Ok(new { token = _tokenService.GenerateToken(user), user.UserName });
         }
+
+        [HttpPost("send-code")]
+        public async Task<IActionResult> SendCode(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+                return BadRequest(new { message = "Email обязателен" });
+
+            var code = _codeStore.GenerateAndStore(email);
+
+            try
+            {
+                await _emailService.SendVerificationCodeAsync(email, code);
+                return Ok(new { message = "Код отправлен на почту" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Не удалось отправить письмо", error = ex.Message });
+            }
+        }
+
+        [HttpPost("verify-code")]
+        public IActionResult VerifyCode([FromBody] VerifyCodeRequest request)
+        {
+            var isValid = _codeStore.Verify(request.Email, request.Code);
+
+            if (!isValid)
+                return BadRequest(new { message = "Неверный или истёкший код" });
+
+            return Ok(new { message = "Код подтверждён" });
+        }
     }
 
-    public record RegisterDto(string UserName, string Email, string Password);
+    public record RegisterDto(string UserName, string Email, string Password, string Code);
     public record LoginDto(string Email, string Password);
 }

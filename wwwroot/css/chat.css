@@ -206,13 +206,31 @@ body {
 
 /* error */
 .auth-error {
-  display: flex; align-items: center; gap: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   padding: 10px 12px;
-  background: var(--red-dim); border: 2px solid var(--red-bd);
-  color: var(--red); font-size: 0.78rem;
+  background: var(--red-dim);
+  border: 2px solid var(--red-bd);
+  color: var(--red);
+  font-size: 0.78rem;
   margin-bottom: 12px;
   box-shadow: 2px 2px 0 var(--px);
-  animation: px-shake 0.28s steps(2) both;
+  
+  animation: 
+    px-shake 0.28s steps(2) both,
+    error-out 0.3s ease forwards 2.75s;
+}
+@keyframes error-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+    margin-bottom: -40px;
+  }
 }
 @keyframes px-shake {
   0%{transform:translateX(0)} 25%{transform:translateX(-4px)}
@@ -809,6 +827,7 @@ body {
   position: fixed; inset: 0; z-index: 400;
   display: flex; align-items: center; justify-content: center;
   padding: 20px;
+  overflow-x: hidden;
 }
 .emoji-modal.hidden { display: none !important; }
 .emoji-modal-overlay {
@@ -853,12 +872,17 @@ body {
 .emoji-tab-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 .emoji-modal-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(34px, 1fr));
+  grid-template-columns: repeat(auto-fill, 34px);
   gap: 2px;
   max-height: 260px;
   overflow-y: auto;
-  scrollbar-width: thin; scrollbar-color: var(--border-hi) transparent;
+  overflow-x: hidden;
+  scrollbar-width: thin; 
+  scrollbar-color: var(--border-hi) transparent;
+  flex-shrink: 0;
+  contain: layout; 
 }
+
 .emoji-grid-btn {
   background: none; border: none;
   font-size: 1.25rem; line-height: 1;
@@ -866,8 +890,16 @@ body {
   cursor: pointer;
   transition: background 0.1s, transform 0.1s;
   text-align: center;
+  width: 34px;
+  height: 34px;
+  box-sizing: border-box;
+  overflow: hidden;
 }
-.emoji-grid-btn:hover { background: var(--accent-dim); transform: scale(1.2); }
+.emoji-grid-btn:hover { 
+  background: var(--accent-dim); 
+  transform: rotateX(30deg);
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
 
 .room-delete-btn {
   display: none;
@@ -890,12 +922,10 @@ body {
   background: rgba(220, 38, 38, 0.15);
 }
 
-.rainbow-char {
-  display: inline-block;
+.rainbow-wave {
   background: linear-gradient(
     90deg,
     hsl(0,100%,55%),
-    hsl(30,100%,55%),
     hsl(60,100%,50%),
     hsl(120,100%,45%),
     hsl(200,100%,55%),
@@ -906,9 +936,8 @@ body {
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation:
-    rainbow-flow 2s linear infinite,
-    wave 1.4s ease-in-out infinite;
+  animation: rainbow-flow 2s linear infinite, wave 1.4s ease-in-out infinite;
+  display: inline-block;
   will-change: background-position, transform;
 }
 
@@ -918,5 +947,61 @@ body {
 
 @keyframes wave {
   0%, 100% { transform: translateY(0); }
-  50%       { transform: translateY(-5px); }
+  50%       { transform: translateY(-4px); }
 }
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--text);
+  -webkit-box-shadow: 0 0 0px 1000px var(--color-input-bg) inset;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.field-group--disabled {
+  opacity: 0.4;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.field-hint--success {
+  display: block;
+  font-size: 12px;
+  color: var(--accent);
+  margin-top: 4px;
+}
+
+.send-code-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	width: 32px;
+	height: 32px;
+
+	border: 2px solid rgba(255, 255, 255, 0.2);
+	border-radius: 6px; 
+
+	transition: all 0.2s ease;
+}
+
+.send-code-btn:hover {
+	border-color: rgba(255, 255, 255, 0.5);
+}
+
+.send-code-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: transform 0.2s ease;
+}
+
+.send-code-btn:hover .send-code-icon {
+	transform: scale(1.25);
+}
+
+.send-code-btn.sent {
+	border-color: #4ade80;
+	color: #4ade80;
+}
+

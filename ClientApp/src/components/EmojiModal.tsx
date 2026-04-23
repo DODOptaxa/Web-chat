@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import twemoji from 'twemoji'
 import { EMOJI_DATA } from '../data/emojiData'
 import { useChatContext } from '../context/ChatContext'
 
 interface Props {
-
 	msgId: number | null
 	onClose: () => void
-	onInsert?: (emoji: string) => void 
+	onInsert?: (emoji: string) => void
 }
 
 export default function EmojiModal({ msgId, onClose, onInsert }: Props) {
@@ -14,7 +14,9 @@ export default function EmojiModal({ msgId, onClose, onInsert }: Props) {
 	const categories = Object.keys(EMOJI_DATA)
 	const [activeCategory, setActiveCategory] = useState(categories[0])
 
-	const isInputMode = msgId === null // режим вставки в поле ввода
+	const gridRef = useRef<HTMLDivElement>(null)
+
+	const isInputMode = msgId === null
 
 	useEffect(() => {
 		function onKey(e: KeyboardEvent) {
@@ -24,12 +26,19 @@ export default function EmojiModal({ msgId, onClose, onInsert }: Props) {
 		return () => window.removeEventListener('keydown', onKey)
 	}, [onClose])
 
+	useEffect(() => {
+		if (activeCategory === 'Animals' && gridRef.current) {
+			twemoji.parse(gridRef.current, {
+				folder: 'svg',
+				ext: '.svg',
+			})
+		}
+	}, [activeCategory])
+
 	async function handleEmoji(emoji: string) {
 		if (isInputMode) {
-
 			onInsert?.(emoji)
 		} else {
-
 			onClose()
 			await toggleReaction(msgId!, emoji)
 		}
@@ -38,7 +47,7 @@ export default function EmojiModal({ msgId, onClose, onInsert }: Props) {
 	return (
 		<div className='emoji-modal'>
 			<div className='emoji-modal-overlay' onClick={onClose} />
-			<div className='emoji-modal-card'>
+			<div className='emoji-modal-card' onMouseDown={e => e.preventDefault()}>
 				<div className='emoji-modal-header'>
 					<span className='emoji-modal-title'>
 						{isInputMode ? 'Вставить эмодзи' : 'Выберите реакцию'}
@@ -47,6 +56,7 @@ export default function EmojiModal({ msgId, onClose, onInsert }: Props) {
 						✕
 					</button>
 				</div>
+
 				<div className='emoji-modal-tabs'>
 					{categories.map(cat => (
 						<button
@@ -58,11 +68,13 @@ export default function EmojiModal({ msgId, onClose, onInsert }: Props) {
 						</button>
 					))}
 				</div>
-				<div className='emoji-modal-grid'>
+
+				<div className='emoji-modal-grid' ref={gridRef}>
 					{EMOJI_DATA[activeCategory].map(emoji => (
 						<button
 							key={emoji}
 							className='emoji-grid-btn'
+							onMouseDown={e => e.preventDefault()}
 							onClick={() => handleEmoji(emoji)}
 						>
 							{emoji}

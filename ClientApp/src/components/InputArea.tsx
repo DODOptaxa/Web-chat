@@ -1,6 +1,7 @@
 import { useRef, useImperativeHandle, forwardRef } from 'react'
 import { useChatContext } from '../context/ChatContext'
 import { useState } from 'react'
+import { scrollToBottom } from '../utils/scroll'
 
 export interface InputAreaHandle {
 	insertEmoji: (emoji: string) => void
@@ -24,11 +25,8 @@ const InputArea = forwardRef<InputAreaHandle, Props>(function InputArea(
 		const end = input?.selectionEnd ?? text.length
 		const newText = text.slice(0, start) + emoji + text.slice(end)
 		setText(newText)
-		requestAnimationFrame(() => {
-			input?.focus()
-			const pos = start + emoji.length
-			input?.setSelectionRange(pos, pos)
-		})
+    const pos = start + emoji.length
+    input?.setSelectionRange(pos, pos)
 	}
 
 	useImperativeHandle(ref, () => ({ insertEmoji }))
@@ -39,6 +37,7 @@ const InputArea = forwardRef<InputAreaHandle, Props>(function InputArea(
 		setText('')
 		stopTyping()
 		await sendMessage(trimmed, state.replyTo?.id ?? null)
+    scrollToBottom()
 		inputRef.current?.focus()
 	}
 

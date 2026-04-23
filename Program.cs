@@ -13,6 +13,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSignalR();
 //builder.Services.AddSingleton<IChatService, InMemoryChatService>();
+builder.Services.AddHttpClient<IEmailService, ResendEmailService>();
+builder.Services.AddSingleton<VerificationCodeStore>();
 builder.Services.AddDbContext<ChatDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("Chat")));
 builder.Services.AddScoped<IChatService, DbChatService>();
 builder.Services.AddSingleton<IRoomService, DbRoomService>();

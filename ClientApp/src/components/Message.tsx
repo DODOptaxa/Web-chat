@@ -97,19 +97,9 @@ export default function Message({ msg, currentUser, onReply, onReact, onScrollTo
 
 			{/* Text */}
 			{isAdmin ? (
-				<span aria-label={msg.text}>
-					{msg.text.split('').map((char, i) => (
-						<span
-							key={i}
-							style={{ animationDelay: `${i * 0.05}s` }}
-							className='rainbow-char'
-						>
-							{char === ' ' ? '\u00A0' : char}
-						</span>
-					))}
-				</span>
+				<p className='rainbow-wave'>{msg.text}</p>
 			) : (
-				msg.text
+				<p className='msg-text'>{msg.text}</p>
 			)}
 
 			{/* Reactions */}

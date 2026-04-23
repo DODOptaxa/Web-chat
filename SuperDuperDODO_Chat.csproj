@@ -4,9 +4,11 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>bf8a91bf-5ca1-48b1-8cd7-df8f56764131</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MailKit" Version="4.16.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.3">
@@ -14,6 +16,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.3" />
+    <PackageReference Include="MimeKit" Version="4.16.0" />
+    <PackageReference Include="Resend" Version="0.5.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.4" />
     <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="10.1.4" />
   </ItemGroup>
