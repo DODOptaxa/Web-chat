@@ -31,7 +31,8 @@ export default function Message({ msg, currentUser, activeMsgId, onSetActive, on
     return <div className="message system">{msg.text}</div>
   }
 
-  const time = new Date(msg.sentAt + 'Z').toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+const sentAt = /[Z+]|\d{2}:\d{2}$/.test(msg.sentAt) ? msg.sentAt : msg.sentAt + 'Z'
+const time = new Date(sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 
   function handlePointerDown(e: React.PointerEvent) {
     pointerDownRef.current = { x: e.clientX, y: e.clientY }
