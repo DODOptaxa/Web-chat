@@ -47,9 +47,9 @@ type Action =
 	| { type: 'SET_CONNECTED'; payload: boolean }
 	| { type: 'SET_REPLY_TO'; payload: ChatState['replyTo'] }
 	| {
-			type: 'UPDATE_REACTIONS'
-			payload: { msgId: number; reactions: ReactionDto[] }
-	  }
+		type: 'UPDATE_REACTIONS'
+		payload: { msgId: number; reactions: ReactionDto[] }
+	}
 	| { type: 'ADD_SYSTEM_MSG'; payload: string }
 	| { type: 'ADD_TYPING'; payload: string }
 	| { type: 'REMOVE_TYPING'; payload: string }
@@ -176,7 +176,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 		lobby.on('UsersOnline', (count: number) =>
 			dispatch({ type: 'SET_ONLINE', payload: count }),
 		)
-		lobby.start().catch(() => {})
+		lobby.start().catch(() => { })
 		return () => {
 			lobby.stop()
 		}
@@ -189,8 +189,6 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 			await chatConnRef.current.stop()
 			chatConnRef.current = null
 		}
-
-		dispatch({ type: 'SET_USER', payload: user })
 
 		const conn = new signalR.HubConnectionBuilder()
 			.withUrl('/hub/chat', { accessTokenFactory: () => getToken() ?? '' })
@@ -233,8 +231,9 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 		await conn.start()
 		await conn.invoke('Register')
 		await conn.invoke('JoinRoom', currentRoomRef.current)
-		dispatch({ type: 'SET_CONNECTED', payload: true })
 		await loadRooms(conn)
+		dispatch({ type: 'SET_CONNECTED', payload: true })
+		dispatch({ type: 'SET_USER', payload: user })
 	}, [])
 
 	// ── Load rooms ────────────────────────────────────────────────────────────
@@ -242,7 +241,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 		try {
 			const rooms = await conn.invoke<Room[]>('GetRooms')
 			dispatch({ type: 'SET_ROOMS', payload: rooms })
-		} catch {}
+		} catch { }
 	}
 
 	// ── Switch room ───────────────────────────────────────────────────────────
@@ -251,11 +250,11 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 		if (!conn || id === currentRoomRef.current) return
 		try {
 			await conn.invoke('LeaveRoom', currentRoomRef.current)
-		} catch {}
+		} catch { }
 		dispatch({ type: 'SET_ROOM', payload: id })
 		try {
 			await conn.invoke('JoinRoom', id)
-		} catch {}
+		} catch { }
 	}, [])
 
 	// ── Send message ──────────────────────────────────────────────────────────
@@ -311,12 +310,12 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 		if (!conn) return
 		try {
 			conn.invoke('StartTyping', currentRoomRef.current)
-		} catch {}
+		} catch { }
 		if (typingTimerRef.current) clearTimeout(typingTimerRef.current)
 		typingTimerRef.current = setTimeout(() => {
 			try {
 				conn.invoke('StopTyping', currentRoomRef.current)
-			} catch {}
+			} catch { }
 		}, 1000)
 	}, [])
 
@@ -326,7 +325,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 		if (typingTimerRef.current) clearTimeout(typingTimerRef.current)
 		try {
 			conn.invoke('StopTyping', currentRoomRef.current)
-		} catch {}
+		} catch { }
 	}, [])
 
 	// ── Logout ────────────────────────────────────────────────────────────────

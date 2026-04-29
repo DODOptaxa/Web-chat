@@ -1,7 +1,9 @@
-﻿namespace SuperDuperDODO_Chat.Services
+﻿using SuperDuperDODO_Chat.Models;
+
+namespace SuperDuperDODO_Chat.Services
 {
     public interface IEmailService
     {
-        Task SendVerificationCodeAsync(string toEmail, string code);
+        Task<EmailResult> SendCodeAsync(EmailRequest request, CancellationToken ct = default);
     }
 }

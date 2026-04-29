@@ -2,10 +2,13 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Resend;
 using SuperDuperDODO_Chat.EFcore;
 using SuperDuperDODO_Chat.Hubs;
 using SuperDuperDODO_Chat.Models;
 using SuperDuperDODO_Chat.Services;
+using SuperDuperDODO_Chat.Services.Resend;
+using System.Net.Http.Headers;
 using System.Text;
 
 
@@ -60,6 +63,14 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddOptions();
+builder.Services.AddHttpClient<ResendClient>();
+builder.Services.Configure<ResendEmailOptions>(builder.Configuration.GetSection(ResendEmailOptions.Section));
+
+builder.Services.Configure<ResendClientOptions>(o =>
+    o.ApiToken = builder.Configuration["Resend:ApiKey"]!);
+
+builder.Services.AddScoped<IEmailService, ResendEmailService>();
 
 var app = builder.Build();
 

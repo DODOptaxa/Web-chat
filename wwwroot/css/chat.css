@@ -287,7 +287,7 @@ body {
 ═══════════════════════════════════════════ */
 #chat-screen {
   display: flex; flex-direction: row;
-  height: 100vh; max-width: 860px; margin: 0 auto;
+  height: 100vh; max-width: 777px; margin: 0 auto;
   background: var(--surface);
   border-left: 2px solid var(--border-hi);
   border-right: 2px solid var(--border-hi);
@@ -485,11 +485,18 @@ body {
 
 /* messages */
 #messages {
-  flex: 1; overflow-y: auto;
+  flex: 1;
   padding: 10px 12px;
   display: flex; flex-direction: column; gap: 7px;
   overflow-y: auto; overflow-x: clip;
-  scrollbar-width: thin; scrollbar-color: var(--border-hi) transparent;
+  scrollbar-width: thin; scrollbar-color: transparent transparent;
+  transition: scrollbar-color 0.2s;
+}
+#messages:hover {
+  scrollbar-color: var(--border-hi) transparent;
+}
+#messages::before {
+  content: ''; flex: 1;
 }
 .message {
   max-width: min(72%, 600px); padding: 6px 10px;

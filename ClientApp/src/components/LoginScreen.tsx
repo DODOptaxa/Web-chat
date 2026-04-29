@@ -24,7 +24,7 @@ export default function LoginScreen() {
 	const [codeValue, setCodeValue] = useState('')
 	const [codeSuccess, setCodeSuccess] = useState('')
 
-	// Эффект для автоматического скрытия ошибки через 3.05 секунды
+
 	useEffect(() => {
 		if (error) {
 			const timer = setTimeout(() => {

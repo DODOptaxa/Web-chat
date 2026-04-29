@@ -39,7 +39,7 @@ namespace SuperDuperDODO_Chat.Controllers
             var isValid = _codeStore.Verify(dto.Email, dto.Code);
 
             if (!isValid)
-                return BadRequest(new { message = "Неверный или истёкший код" });
+                return BadRequest(new { error = "Неверный или истёкший код" });
 
             var user = new User { UserName = dto.UserName, Email = dto.Email };
             user.PasswordHash = _passwordHasher.HashPassword(user, dto.Password);
@@ -73,7 +73,10 @@ namespace SuperDuperDODO_Chat.Controllers
 
             try
             {
-                await _emailService.SendVerificationCodeAsync(email, code);
+                await _emailService.SendCodeAsync(new EmailRequest(
+                    To: email,
+                    Subject: "Добро пожаловать!",
+                    HtmlBody: $"<h1>Спасибо за регистрацию! Ваш код подтверждения: {code}</h1>"));
                 return Ok(new { message = "Код отправлен на почту" });
             }
             catch (Exception ex)
@@ -88,7 +91,7 @@ namespace SuperDuperDODO_Chat.Controllers
             var isValid = _codeStore.Verify(request.Email, request.Code);
 
             if (!isValid)
-                return BadRequest(new { message = "Неверный или истёкший код" });
+                return BadRequest(new { error = "Неверный или истёкший код" });
 
             return Ok(new { message = "Код подтверждён" });
         }
