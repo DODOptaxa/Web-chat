@@ -31,7 +31,7 @@ export default function Message({ msg, currentUser, activeMsgId, onSetActive, on
     return <div className="message system">{msg.text}</div>
   }
 
-  const time = new Date(msg.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  const time = new Date(msg.sentAt + 'Z').toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 
   function handlePointerDown(e: React.PointerEvent) {
     pointerDownRef.current = { x: e.clientX, y: e.clientY }
@@ -41,13 +41,13 @@ export default function Message({ msg, currentUser, activeMsgId, onSetActive, on
     const start = pointerDownRef.current
     pointerDownRef.current = null
     if (!start) return
-    // игнорируем если это скролл или тап по кнопке/реакции
+
     const dx = Math.abs(e.clientX - start.x)
     const dy = Math.abs(e.clientY - start.y)
     if (dx > 8 || dy > 8) return
     const target = e.target as HTMLElement
     if (target.closest('.msg-action-btn') || target.closest('.reply-quote') || target.closest('.reaction-pill')) return
-    // переключаем: если уже активно — закрываем, иначе — открываем это
+
     onSetActive(isActive ? null : msg.id)
   }
 
