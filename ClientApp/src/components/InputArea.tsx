@@ -5,6 +5,7 @@ import { scrollToBottom } from '../utils/scroll'
 
 export interface InputAreaHandle {
 	insertEmoji: (emoji: string) => void
+	focus: () => void
 }
 
 interface Props {
@@ -29,7 +30,10 @@ const InputArea = forwardRef<InputAreaHandle, Props>(function InputArea(
     input?.setSelectionRange(pos, pos)
 	}
 
-	useImperativeHandle(ref, () => ({ insertEmoji }))
+	useImperativeHandle(ref, () => ({
+		insertEmoji,
+		focus: () => inputRef.current?.focus(),
+	}))
 
 	async function handleSend() {
 		const trimmed = text.trim()
