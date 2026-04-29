@@ -160,11 +160,16 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 	const lobbyConnRef = useRef<signalR.HubConnection | null>(null)
 	const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 	const currentRoomRef = useRef('general')
+	const roomsRef = useRef<Room[]>(state.rooms)
 
-	// Keep ref in sync so callbacks don't close over stale value
+	// Keep refs in sync so callbacks don't close over stale values
 	useEffect(() => {
 		currentRoomRef.current = state.currentRoomId
 	}, [state.currentRoomId])
+
+	useEffect(() => {
+		roomsRef.current = state.rooms
+	}, [state.rooms])
 
 	// ── Lobby (online count, no auth) ─────────────────────────────────────────
 	useEffect(() => {
@@ -296,12 +301,12 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 			dispatch({ type: 'REMOVE_ROOM', payload: roomId })
 			// Если удалили текущую — переключаемся на первую оставшуюся
 			if (currentRoomRef.current === roomId) {
-				const next = state.rooms[0]
+				const next = roomsRef.current[0]
 				if (next) await switchRoom(next.id, next.name)
 			}
 			await conn.invoke('DeleteRoom', roomId)
 		},
-		[state.rooms, switchRoom],
+		[switchRoom],
 	)
 
 	// ── Typing ────────────────────────────────────────────────────────────────

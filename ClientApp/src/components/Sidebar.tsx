@@ -84,7 +84,7 @@ export default function Sidebar({
 							<span className='room-count'>{room.memberCount}</span>
 						) : null}
 
-						{i > 0 && (
+						{i > 1 && (
 							<button
 								className='room-delete-btn'
 								title={`Удалить «${room.name}»`}

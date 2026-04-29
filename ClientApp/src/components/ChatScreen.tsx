@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import { useChatContext } from '../context/ChatContext'
 import type { MessageDto } from '../types'
 import Sidebar from './Sidebar'
@@ -34,7 +34,7 @@ export default function ChatScreen() {
 
 	const currentRoom = rooms.find(r => r.id === currentRoomId)
 
-	const allMessages = [
+	const allMessages = useMemo(() => [
 		...messages,
 		...typingUsers
 			.filter(name => name !== user?.userName)
@@ -53,9 +53,9 @@ export default function ChatScreen() {
 						_isTyping: true,
 					}) as MessageDto & { _isTyping?: boolean },
 			),
-	]
+	], [messages, typingUsers, user?.userName, currentRoomId])
 
-	async function handleDeleteRoom(roomId: string, roomName: string) {
+	const handleDeleteRoom = useCallback(async (roomId: string, roomName: string) => {
 		if (
 			!window.confirm(
 				`Удалить комнату «${roomName}»?\nЭто действие нельзя отменить.`,
@@ -63,7 +63,20 @@ export default function ChatScreen() {
 		)
 			return
 		await deleteRoom(roomId)
-	}
+	}, [deleteRoom])
+
+	const handleReply = useCallback((msg: MessageDto) => {
+		setReplyTo({
+			id: msg.id,
+			userName: msg.userName,
+			text: msg.text,
+		})
+		setTimeout(() => inputAreaRef.current?.focus(), 0)
+	}, [setReplyTo])
+
+	const handleReact = useCallback((msgId: number) => {
+		setEmojiTarget(msgId)
+	}, [])
 
 	return (
 		<>
@@ -135,15 +148,8 @@ export default function ChatScreen() {
 							messages={allMessages}
 							currentUser={user?.userName ?? ''}
 							roomId={currentRoomId}
-							onReply={(msg: MessageDto) => {
-								setReplyTo({
-									id: msg.id,
-									userName: msg.userName,
-									text: msg.text,
-								})
-								setTimeout(() => inputAreaRef.current?.focus(), 0)
-							}}
-							onReact={(msgId: number) => setEmojiTarget(msgId)}
+							onReply={handleReply}
+							onReact={handleReact}
 						/>
 
 						<ReplyBar />
