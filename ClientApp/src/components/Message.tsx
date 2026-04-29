@@ -1,10 +1,6 @@
-import { useState, useRef } from 'react'
+import { useRef } from 'react'
 import type { MessageDto } from '../types'
 import { useChatContext } from '../context/ChatContext'
-
-function escapeHtml(t: string) {
-  return t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-}
 
 function nameToColor(name: string) {
   let hash = 0
@@ -15,17 +11,19 @@ function nameToColor(name: string) {
 interface Props {
   msg: MessageDto
   currentUser: string
+  activeMsgId: number | null
+  onSetActive: (id: number | null) => void
   onReply: (msg: MessageDto) => void
   onReact: (msgId: number) => void
   onScrollTo: (msgId: number) => void
 }
 
-export default function Message({ msg, currentUser, onReply, onReact, onScrollTo }: Props) {
+export default function Message({ msg, currentUser, activeMsgId, onSetActive, onReply, onReact, onScrollTo }: Props) {
   const { toggleReaction } = useChatContext()
   const isOwn = msg.userName === currentUser
   const isSystem = msg.userName === '__system__'
-  const [actionsVisible, setActionsVisible] = useState(false)
-  const touchStartRef = useRef<{ x: number; y: number } | null>(null)
+  const isActive = activeMsgId === msg.id
+  const pointerDownRef = useRef<{ x: number; y: number } | null>(null)
 
   const isAdmin = msg.userName.includes('🦤')
 
@@ -35,42 +33,52 @@ export default function Message({ msg, currentUser, onReply, onReact, onScrollTo
 
   const time = new Date(msg.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 
-  function handleTouchStart(e: React.TouchEvent) {
-    touchStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
+  function handlePointerDown(e: React.PointerEvent) {
+    pointerDownRef.current = { x: e.clientX, y: e.clientY }
   }
 
-  function handleTouchEnd(e: React.TouchEvent) {
-    const start = touchStartRef.current
+  function handlePointerUp(e: React.PointerEvent) {
+    const start = pointerDownRef.current
+    pointerDownRef.current = null
     if (!start) return
-    const dx = Math.abs(e.changedTouches[0].clientX - start.x)
-    const dy = Math.abs(e.changedTouches[0].clientY - start.y)
-    if (dx < 8 && dy < 8) {
-      const target = e.target as HTMLElement
-      if (!target.closest('.msg-action-btn') && !target.closest('.reply-quote') && !target.closest('.reaction-pill')) {
-        setActionsVisible(v => !v)
-      }
-    }
-    touchStartRef.current = null
+    // игнорируем если это скролл или тап по кнопке/реакции
+    const dx = Math.abs(e.clientX - start.x)
+    const dy = Math.abs(e.clientY - start.y)
+    if (dx > 8 || dy > 8) return
+    const target = e.target as HTMLElement
+    if (target.closest('.msg-action-btn') || target.closest('.reply-quote') || target.closest('.reaction-pill')) return
+    // переключаем: если уже активно — закрываем, иначе — открываем это
+    onSetActive(isActive ? null : msg.id)
   }
 
   return (
 		<div
-			className={`message${isOwn ? ' own' : ''}${actionsVisible ? ' actions-visible' : ''}`}
+			className={`message${isOwn ? ' own' : ''}${isActive ? ' actions-visible' : ''}`}
 			data-msg-id={msg.id}
-			onTouchStart={handleTouchStart}
-			onTouchEnd={handleTouchEnd}
+			onPointerDown={handlePointerDown}
+			onPointerUp={handlePointerUp}
 		>
 			{/* Inline actions */}
 			<div className='msg-actions'>
 				<button
 					className='msg-action-btn msg-reply-btn'
-					onClick={() => onReply(msg)}
+					onPointerDown={e => e.stopPropagation()}
+					onPointerUp={e => {
+						e.stopPropagation()
+						onSetActive(null)
+						onReply(msg)
+					}}
 				>
 					↩ Ответить
 				</button>
 				<button
 					className='msg-action-btn msg-react-btn'
-					onClick={() => onReact(msg.id)}
+					onPointerDown={e => e.stopPropagation()}
+					onPointerUp={e => {
+						e.stopPropagation()
+						onSetActive(null)
+						onReact(msg.id)
+					}}
 				>
 					😊 Реакция
 				</button>
@@ -89,7 +97,7 @@ export default function Message({ msg, currentUser, onReply, onReact, onScrollTo
 
 			{/* Reply quote */}
 			{msg.replyToId && (msg.replyToUserName || msg.replyToText) && (
-				<div className='reply-quote' onClick={() => onScrollTo(msg.replyToId!)}>
+				<div className='reply-quote' onPointerUp={e => { e.stopPropagation(); onScrollTo(msg.replyToId!) }}>
 					<div className='reply-quote-user'>↩ {msg.replyToUserName || ''}</div>
 					{(msg.replyToText || '').slice(0, 120)}
 				</div>
@@ -113,7 +121,8 @@ export default function Message({ msg, currentUser, onReply, onReact, onScrollTo
 								key={r.emoji}
 								className={`reaction-pill${isMine ? ' mine' : ''}`}
 								title={title}
-								onClick={() => toggleReaction(msg.id, r.emoji)}
+								onPointerDown={e => e.stopPropagation()}
+								onPointerUp={e => { e.stopPropagation(); toggleReaction(msg.id, r.emoji) }}
 							>
 								<span className='reaction-emoji'>{r.emoji}</span>
 								<span className='reaction-count'>{r.count}</span>

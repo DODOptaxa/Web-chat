@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { MessageDto } from '../types'
 import Message from './Message'
 
@@ -19,8 +19,8 @@ export default function MessageList({
 }: Props) {
 	const listRef = useRef<HTMLDivElement>(null)
 	const prevRoomIdRef = useRef<string>(roomId)
-	// true = ждём историю (первая загрузка ИЛИ смена комнаты)
 	const needsScrollRef = useRef<boolean>(true)
+	const [activeMsgId, setActiveMsgId] = useState<number | null>(null)
 
 	function isNearBottom() {
 		const el = listRef.current
@@ -44,21 +44,19 @@ export default function MessageList({
 		setTimeout(() => el.classList.remove('highlight'), 1200)
 	}
 
-	// Смена комнаты — ставим флаг
 	useEffect(() => {
 		if (prevRoomIdRef.current !== roomId) {
 			prevRoomIdRef.current = roomId
 			needsScrollRef.current = true
+			setActiveMsgId(null)
 			const el = listRef.current
 			if (el) el.scrollTop = 0
 		}
 	}, [roomId])
 
-	// Сообщения изменились
 	useEffect(() => {
 		if (messages.length === 0) return
 		if (needsScrollRef.current) {
-			// Первая загрузка или смена комнаты — всегда скроллим вниз
 			needsScrollRef.current = false
 			requestAnimationFrame(() => {
 				requestAnimationFrame(() => {
@@ -66,7 +64,6 @@ export default function MessageList({
 				})
 			})
 		} else if (isNearBottom()) {
-			// Новое сообщение — скроллим только если уже внизу
 			scrollToBottom()
 		}
 	}, [messages.length])
@@ -78,6 +75,8 @@ export default function MessageList({
 					key={msg.id}
 					msg={msg}
 					currentUser={currentUser}
+					activeMsgId={activeMsgId}
+					onSetActive={setActiveMsgId}
 					onReply={onReply}
 					onReact={onReact}
 					onScrollTo={scrollToMsg}

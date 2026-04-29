@@ -790,12 +790,6 @@ body {
 }
 .msg-react-btn:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 #0033cc; }
 
-/* на мобиле — отступ сверху чтобы всплывающие кнопки не перекрывали предыдущее сообщение */
-@media (hover: none) {
-  .message { margin-top: 36px; }
-  .message:first-child { margin-top: 0; }
-}
-
 /* on touch devices show/hide via tap (.actions-visible), hide :hover */
 @media (hover: none) {
   .message:hover .msg-actions { opacity: 0; pointer-events: none;
