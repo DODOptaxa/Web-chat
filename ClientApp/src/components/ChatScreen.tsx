@@ -134,14 +134,15 @@ export default function ChatScreen() {
 						<MessageList
 							messages={allMessages}
 							currentUser={user?.userName ?? ''}
-					roomId={currentRoomId}
-							onReply={(msg: MessageDto) =>
+							roomId={currentRoomId}
+							onReply={(msg: MessageDto) => {
 								setReplyTo({
 									id: msg.id,
 									userName: msg.userName,
 									text: msg.text,
 								})
-							}
+								setTimeout(() => inputAreaRef.current?.focus(), 0)
+							}}
 							onReact={(msgId: number) => setEmojiTarget(msgId)}
 						/>
 
