@@ -1,0 +1,64 @@
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    user: root
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: ${SA_PASSWORD:?Set SA_PASSWORD in your environment or .env file}
+      MSSQL_SA_PASSWORD: ${SA_PASSWORD:?Set SA_PASSWORD in your environment or .env file}
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$SA_PASSWORD\" -C -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --port 6767 --appendonly yes
+    ports:
+      - "6767:6767"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "6767", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 90s
+    restart: unless-stopped
+
+  web:
+    image: online_chat
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__Chat: 'Server=db,1433;Database=DODO_Chat;User Id=sa;Password=${SA_PASSWORD:?Set SA_PASSWORD in your environment or .env file};TrustServerCertificate=True'
+      ConnectionStrings__Redis: redis:6767
+      Jwt__Key: ${JWT_KEY:?Set JWT_KEY in your environment or .env file}
+      Jwt__Issuer: ${JWT_ISSUER:-SuperDuperDODO}
+      Jwt__Audience: ${JWT_AUDIENCE:-SuperDuperDODO}
+      Resend__ApiKey: ${RESEND_API_KEY:-}
+      Resend__DefaultFrom: ${RESEND_DEFAULT_FROM:-}
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  sqlserver-data:
+  redis-data:

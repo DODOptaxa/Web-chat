@@ -374,3 +374,5 @@ wwwroot/assets/app.css
 ClientApp/.vite/
 
 DOCS.md
+
+.env

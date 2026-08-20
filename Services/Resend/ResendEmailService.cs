@@ -28,16 +28,25 @@ namespace SuperDuperDODO_Chat.Services.Resend
                 var message = BuildMessage(request);
                 var response = await _resend.EmailSendAsync(message, ct);
 
-                _logger.LogInformation("Email sent to {To}, messageId: {Id}", request.To, response.Content);
-                return new EmailResult(true, response.Content.ToString(), null);
+                if (!response.Success)
+                {
+                    var errorMessage = response.Exception?.Message ?? "Неизвестная ошибка Resend API";
+                    _logger.LogWarning("Failed to send email to {To}. Resend Error: {Error}", request.To, errorMessage);
+
+                    return new EmailResult(false, null, errorMessage);
+                }
+
+                var messageId = response.Content.ToString();
+                _logger.LogInformation("Email sent to {To}, messageId: {Id}", request.To, messageId);
+
+                return new EmailResult(true, messageId, null);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to send email to {To}", request.To);
+                _logger.LogError(ex, "Unhandled exception while sending email to {To}", request.To);
                 return new EmailResult(false, null, ex.Message);
             }
         }
-
         private EmailMessage BuildMessage(EmailRequest request) => new()
         {
             From = request.From ?? _defaultFrom,

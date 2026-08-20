@@ -16,14 +16,16 @@ namespace SuperDuperDODO_Chat.Controllers
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly IEmailService _emailService;
         private readonly VerificationCodeStore _codeStore;
+        private readonly IWebHostEnvironment _env;
 
-        public AuthController(TokenService tokenService, ChatDbContext db, IPasswordHasher<User> passwordHasher, IEmailService emailService, VerificationCodeStore codeStore)
+        public AuthController(TokenService tokenService, ChatDbContext db, IPasswordHasher<User> passwordHasher, IEmailService emailService, VerificationCodeStore codeStore, IWebHostEnvironment env)
         {
             _tokenService = tokenService;
             _db = db;
             _passwordHasher = passwordHasher;
             _emailService = emailService;
             _codeStore = codeStore;
+            _env = env;
         }
 
         [HttpPost("register")]
@@ -38,6 +40,13 @@ namespace SuperDuperDODO_Chat.Controllers
 
             var isValid = _codeStore.Verify(dto.Email, dto.Code);
 
+            if(_env.IsDevelopment())
+            {
+                if (int.Parse(dto.Code) == 111111)
+                {
+                    isValid = true;
+                }
+            }
             if (!isValid)
                 return BadRequest(new { error = "Неверный или истёкший код" });
 

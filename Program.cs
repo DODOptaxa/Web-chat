@@ -16,11 +16,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSignalR();
 //builder.Services.AddSingleton<IChatService, InMemoryChatService>();
-builder.Services.AddHttpClient<IEmailService, ResendEmailService>();
+builder.Services.AddScoped<IEmailService, ResendEmailService>();
 builder.Services.AddSingleton<VerificationCodeStore>();
 builder.Services.AddDbContext<ChatDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("Chat")));
 builder.Services.AddScoped<IChatService, DbChatService>();
-builder.Services.AddSingleton<IRoomService, DbRoomService>();
+builder.Services.AddScoped<IRoomService, DbRoomService>();
 
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
@@ -70,11 +70,14 @@ builder.Services.Configure<ResendEmailOptions>(builder.Configuration.GetSection(
 builder.Services.Configure<ResendClientOptions>(o =>
     o.ApiToken = builder.Configuration["Resend:ApiKey"]!);
 
-builder.Services.AddScoped<IEmailService, ResendEmailService>();
+
+builder.Services.AddSignalR()
+    .AddStackExchangeRedis(builder.Configuration.GetConnectionString("Redis") 
+                           ?? "redis:6767");
 
 var app = builder.Build();
 
-//app.UseDefaultFiles();
+app.UseDefaultFiles();
 app.UseStaticFiles();
 app.MapFallbackToFile("index.html");
 
@@ -94,7 +97,7 @@ if (app.Environment.IsDevelopment())
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ChatDbContext>();
-    db.Database.Migrate();
+    db.Database.EnsureCreated();
 }
 
 app.Run();
