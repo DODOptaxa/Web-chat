@@ -20,8 +20,8 @@ RESEND_DEFAULT_FROM=
 | `JWT_KEY` | Secret key for signing JWT tokens. Minimum 32 bytes |
 | `ASPNETCORE_ENVIRONMENT` | `Development` or `Production`. Defaults to `Development` |
 | `JWT_ISSUER` / `JWT_AUDIENCE` | Token issuer and audience |
-| `RESEND_API_KEY` | API key for [Resend](https://resend.com/), used to send email verification codes. **Only used when `ASPNETCORE_ENVIRONMENT=Production`** |
-| `RESEND_DEFAULT_FROM` | Sender email address registered in Resend. **Only used when `ASPNETCORE_ENVIRONMENT=Production`** |
+| `RESEND_API_KEY` | API key for [Resend](https://resend.com/), used to send email verification codes. **Only used in `Production`** |
+| `RESEND_DEFAULT_FROM` | Sender email address registered in Resend. **Only used in `Production`** |
 
 ### 2. Start
 
